@@ -8,6 +8,7 @@
   "dependencies": {
     "@prisma/client": "^5.13.0",
     "elysia": "latest",
+    "joi": "^17.13.3",
     "prisma": "5.13.0"
   },
   "devDependencies": {

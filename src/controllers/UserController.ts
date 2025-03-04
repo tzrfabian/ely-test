@@ -1,4 +1,5 @@
 import prisma from "../../prisma/client";
+import Joi from "joi";
 
 export async function getAllUsers() {
     try {
@@ -10,11 +11,37 @@ export async function getAllUsers() {
             message: 'All users fetched successfully'
         }
     } catch (err: unknown) {
-        console.log(err);
+        console.log(`error fetch all users: ${err}`);
+        return {
+            success: false,
+            message: `error fetching all users: ${err}`
+        }
     }
 }
 
+const userSchema = Joi.object({
+    email: Joi.string().email().required(),
+    username: Joi.string().min(6).max(20).required(),
+    password: Joi.string().min(8).required()
+});
+
 export async function addUser(email: string, username: string, password: string) {
+    const emailExists = await prisma.user.findFirst({where: {email}});
+    if(emailExists) {
+        return {
+            success: false,
+            message: 'Email already exists'
+        }
+    }
+    
+    const {error} = userSchema.validate({email, username, password});
+    if(error) {
+        return {
+            success: false,
+            message: `error: ${error.details[0].message}`
+        }
+    }
+
     try {
         const newUser = await prisma.user.create({
             data: {
@@ -30,6 +57,10 @@ export async function addUser(email: string, username: string, password: string)
             message: 'User added successfully!'
         }
     } catch (err: unknown) {
-        console.log(err);
+        console.log(`error adding user: ${err}`);
+        return {
+            success: false,
+            message: `error adding user ${err}`
+        }
     }
 }
