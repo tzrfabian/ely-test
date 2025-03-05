@@ -42,12 +42,17 @@ export async function addUser(email: string, username: string, password: string)
         }
     }
 
+    const bcryptHashPass = await Bun.password.hash(password, {
+        algorithm: "bcrypt",
+        cost: 4, 
+      });
+
     try {
         const newUser = await prisma.user.create({
             data: {
-                email,
-                username,
-                password
+                email: email,
+                username: username,
+                password: bcryptHashPass
             }
         });
 
