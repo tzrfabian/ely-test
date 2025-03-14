@@ -1,13 +1,25 @@
-import { Elysia } from 'elysia'
-import { getAllUsers } from '../controllers/UserController'
-import { addUser } from '../controllers/UserController'
+import { Elysia } from "elysia";
+import { getAllUsers, addUser } from "../controllers/UserController";
+import { errorHandler } from "../middlewares/errorHandler";
 
-const userRoutes = new Elysia({ prefix: '/users' })
-    .get('/', () => getAllUsers())
-    .post('/', (req: {
-        body: {
-            email: string, username: string, password: string
+const userRoutes = new Elysia({ prefix: "/users" })
+    .get("/", async (ctx: any) => {
+        try {
+            return await getAllUsers(ctx);
+        } catch (err) {
+            return errorHandler(ctx, err);
         }
-    }) => addUser(req.body.email, req.body.username, req.body.password))
+    })
+    .post("/", async (ctx: any) => {
+        try {
+            // Read the body once and store it
+            const { email, username, password } = ctx.body;
 
-export default userRoutes
+            // Pass extracted values to addUser
+            return await addUser(ctx, email, username, password);
+        } catch (err) {
+            return errorHandler(ctx, err);
+        }
+    });
+
+export default userRoutes;

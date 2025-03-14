@@ -3,6 +3,11 @@ import { Context } from "elysia";
 export function errorHandler(ctx: Context, err: any) {
     console.error("~ errorHandler ~ err:", err);
 
+    if (err.statusCode) {
+        ctx.set.status = err.statusCode;
+        return { message: err.message };
+    }
+
     switch (err.name) {
         case "BadRequest":
             ctx.set.status = 400;
