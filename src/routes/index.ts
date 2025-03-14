@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { getAllUsers, addUser } from "../controllers/UserController";
 import { errorHandler } from "../middlewares/errorHandler";
+import { jwt } from '@elysiajs/jwt';
 
 const userRoutes = new Elysia({ prefix: "/users" })
     .get("/", async (ctx: any) => {

@@ -74,3 +74,31 @@ export async function addUser(ctx: Context, email: string, username: string, pas
         return errorHandler(ctx, err);
     }
 }
+
+export async function login(ctx: Context, email: string, password: string) {
+    // check if email exists
+    const user = await prisma.user.findFirst({where: {email}});
+    if(!user) {
+        throw {
+            statusCode: 404,
+            code: 'NOT FOUND',
+            message: 'Invalid email or password'
+        }
+    }
+
+    // compare password correct or not
+    const passwordMatch = await Bun.password.verify(password, user.password);
+    if(!passwordMatch) {
+        throw {
+            statusCode: 401,
+            code: 'UNAUTHORIZED',
+            message: 'Invalid password'
+        }
+    }
+
+    return {
+        success: true,
+        data: user,
+        message: 'Login successful'
+    }
+}
