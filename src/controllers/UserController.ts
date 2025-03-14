@@ -2,6 +2,7 @@ import { Context } from "elysia";
 import prisma from "../../prisma/client";
 import Joi from "joi";
 import { errorHandler } from "../middlewares/errorHandler";
+import { jwt } from "@elysiajs/jwt";
 
 export async function getAllUsers(ctx: Context) {
     try {
@@ -75,13 +76,13 @@ export async function addUser(ctx: Context, email: string, username: string, pas
     }
 }
 
-export async function login(ctx: Context, email: string, password: string) {
+export async function loginUser(ctx: Context, email: string, password: string) {
     // check if email exists
-    const user = await prisma.user.findFirst({where: {email}});
+    const user = await prisma.user.findFirst({where: { email }});
     if(!user) {
         throw {
             statusCode: 404,
-            code: 'NOT FOUND',
+            code: 'UNAUTHORIZED',
             message: 'Invalid email or password'
         }
     }
@@ -92,13 +93,19 @@ export async function login(ctx: Context, email: string, password: string) {
         throw {
             statusCode: 401,
             code: 'UNAUTHORIZED',
-            message: 'Invalid password'
+            message: 'Invalid email or password'
         }
     }
 
+    const token = await ctx.jwt.sign({
+        id: user.id,
+        email: user.email,
+        username: user.username,
+    });
+
     return {
         success: true,
-        data: user,
-        message: 'Login successful'
+        message: 'Login successful',
+        token: token
     }
 }

@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 import userRoutes from './routes/';
-import jwt from "@elysiajs/jwt";
+import { jwt } from "@elysiajs/jwt";
 
 const app = new Elysia()
   .use(jwt({
